@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<!-- saved from url=(0049)http://v4-alpha.getbootstrap.com/examples/navbar/ -->
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="http://v4-alpha.getbootstrap.com/favicon.ico">
+
+    <title>Viscacha - Search Place</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="static/css/navbar.css" rel="stylesheet">
+    <link href="static/css/audio.css" rel="stylesheet" type="text/css">
+    <link href="static/css/offcanvas.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <link href="static/css/common.css" rel="stylesheet">
+  </head>
+
+  <body>
+
+    {{ header | safe }}
+
+    <div class="container" id="container">
+
+      <div class="panel panel-default">
+        <div class="panel-heading">Search Bar</div>
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-lg-12">
+                <div class="input-group">
+                  <input type="text" class="form-control" placeholder="Search" id="search_input">
+                  <span class="input-group-btn">
+                    <button class="btn btn-default" type="button" id="search_button">Search</button>
+                  </span>
+                </div><!-- /input-group -->
+              </div><!-- /.col-lg-6 -->
+            </div>
+          </div>
+      </div>
+
+      <hr>
+
+      <div class="modal fade" id="waitDialogModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4>Searching...</h4>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel panel-default">
+        <div class="panel-heading">Search Results</div>
+          <div class="panel-body">
+            <div id="wrapper">
+              <audio preload="none"></audio>
+              <hr>
+              <div class="list-group" id="search_results"></div>
+            </div>
+          </div>
+      </div>
+
+    </div>
+
+    <script src="static/js/jquery.min.js"></script>
+    <script src="static/js/audiojs/audio.min.js"></script>
+    <script src="static/js/player.js"></script>
+    <script src="static/js/vk.js"></script>
+    <script src="static/js/common.js"></script>
+    <script src="static/js/common_view.js"></script>
+
+    <script src="static/js/tether.min.js"></script>
+    <script src="static/bootstrap/js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="static/js/ie10-viewport-bug-workaround.js"></script>
+
+    <script type="text/javascript">
+      setView({{ forecast | tojson | safe }});
+    </script>
+
+    <script type="text/javascript">
+
+      $(document).ready(function() {
+        var url = window.location;
+
+        // highlight the page's link
+        $('ul.nav a[href="'+ url +'"]').parent().addClass('active');
+        $('ul.nav a').filter(function() {
+          return this.href == url;
+        }).parent().addClass('active');
+      });
+
+      var waitDialog = $('#waitDialogModal');
+
+      $(function() {
+        $('#search_input').keypress(function(e) {
+          if (e.which == 13) {
+            $("#search_results").empty();
+            search();
+          }
+        });
+
+        $('#search_button').click(function(event) {
+          $("#search_results").empty();
+          search();
+        });
+      });
+
+      function search() {
+        showWaitDialog();
+
+        var value = $('#search_input').val();
+        $.post('/search_place', { query: value }, function(data) {
+
+            $.each(data.result, function (index, item) {
+              $('<a/>')
+                .prop('href', '#')
+                  .attr('class', "list-group-item")
+                  .html(item.woeid + ' - ' +item.name + ' - ' + item.placeType + ' - ' + item.country)
+                .appendTo('#search_results')
+            })
+
+            closeWaitDialog();
+        }, 'json');
+      }
+
+      function showWaitDialog() {
+        waitDialog.modal('show');
+      }
+
+      function closeWaitDialog() {
+        waitDialog.modal('hide');
+      }
+
+    </script>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+      
+  </body>
+</html>

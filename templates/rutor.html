@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<!-- saved from url=(0049)http://v4-alpha.getbootstrap.com/examples/navbar/ -->
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="static/ico/favicon.jpg">
+
+    <title>DELEYE - Rutor</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="static/css/navbar.css" rel="stylesheet">
+    <link href="static/css/audio.css" rel="stylesheet" type="text/css">
+    <link href="static/css/offcanvas.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <link href="static/css/common.css" rel="stylesheet">
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    {{ header | safe }}
+
+    <div class="container" id="container">
+
+      <table class="table table-bordered table-striped" id="rutor_table" style="width: auto;"">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Category</th>
+            <th>Size</th>
+            <th>Added</th>
+          </tr>
+        </thead>
+      </table>
+
+      <div class="modal fade" id="waitDialogModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4>Loading...</h4>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    
+    <a id="back-to-top" href="#" class="btn btn-default btn-sm back-to-top" role="button" title="Click to return on the top page" data-toggle="tooltip" data-placement="left"><span class="glyphicon glyphicon-chevron-up"></span></a>
+
+    <script src="static/js/jquery.min.js"></script>
+    <script src="static/js/audiojs/audio.min.js"></script>
+    <script src="static/js/player.js"></script>
+    <script src="static/js/vk.js"></script>
+    <script src="static/js/common.js"></script>
+    <script src="static/js/common_view.js"></script>
+
+    <script src="static/js/tether.min.js"></script>
+    <script src="static/bootstrap/js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="static/js/ie10-viewport-bug-workaround.js"></script>
+
+    <script type="text/javascript">
+      setView({{ forecast | tojson | safe }});
+    </script>
+
+    <script type="text/javascript">
+
+      var index = 0;
+
+      $(document).ready(function() {
+        var win = $(window);
+        var url = window.location;
+
+        // highlight the page's link
+        $('ul.nav a[href="'+ url +'"]').parent().addClass('active');
+        $('ul.nav a').filter(function() {
+          return this.href == url;
+        }).parent().addClass('active');
+
+        // add Back To Top button
+        $(window).scroll(function() {
+          if ($(this).scrollTop() > 50) {
+            $('#back-to-top').fadeIn();
+          } else {
+            $('#back-to-top').fadeOut();
+          }
+        });
+        // scroll body to 0px on click
+        $('back-to-top').click(function() {
+          $('#back-to-top').tooltip('hide');
+          $('body,html').animate({
+            scrollTop: 0
+          }, 800);
+          return false;
+        });
+        
+        $('#back-to-top').tooltip('show');
+
+        // infinite scroll
+        win.scroll(function() {
+          // End of the document reached?
+          if ($(document).height() - win.height() == win.scrollTop()) {
+            loadData();
+          }
+        });
+      });
+
+      var waitDialog = $('#waitDialogModal');
+      $('#rutor_table').hide();
+
+      showWaitDialog();
+      loadData(closeWaitDialog);
+
+      function loadData(callbackFunc) {
+        $.get("/get_rutor_data", { index: index}, function(data) {
+          var jsoned = JSON.parse(data)
+
+          var tbody = $('<tbody/>');
+          var table = $('#rutor_table');
+
+          $.each(jsoned, function (index, item) {
+            var td1 = $('<td/>').text(item.torrent_id);
+            var td2 = $('<td/>').text(item.title);
+            var td3 = $('<td/>').text(item.category);
+            var td4 = $('<td/>').text(item.size);
+            var td5 = $('<td/>').text(item.added);
+
+            tbody.append($('<tr/>').append(td1, td2, td3, td4, td5));
+          });
+
+          table.append(tbody);
+          $('#rutor_table').show();
+          
+          if (callbackFunc != null)
+            callbackFunc();
+
+          index = index + 100;
+        });
+      }
+
+      function showWaitDialog() {
+        waitDialog.modal('show');
+      }
+
+      function closeWaitDialog() {
+        waitDialog.modal('hide');
+      }
+      
+    </script>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+      
+  </body>
+</html>

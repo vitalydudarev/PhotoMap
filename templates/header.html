@@ -1,0 +1,28 @@
+<nav class="navbar navbar-inverse navbar-fixed-top">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="/">DELEYE</a>
+    </div>
+    <div id="navbar" class="collapse navbar-collapse">
+      <ul class="nav navbar-nav">
+        <li><a href="/">Home</a></li>
+        <li><a href="/search">VK Search</a></li>
+        <li><a href="/audios">VK Audios</a></li>
+        <li><a href="/rates">Exchange Rates</a></li>
+        <li><a href="/rutor">Rutor</a></li>
+        <li><a href="/search_place">Search place</a></li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li><button class="btn btn-link navbar-btn" style="text-decoration: none; color: #fff">USD/BYN: {{ currency_rate }}</button></li>
+        <li><button class="btn btn-link navbar-btn" style="text-decoration: none; color: #fff" id="weather" data-toggle="popover" data-trigger="hover" title="Weather Forecast" data-content="" data-placement="bottom"></button></li>
+        <li><button class="btn btn-link navbar-btn" style="text-decoration: none; color: #fff"><span class="glyphicon glyphicon-cog" aria-hidden="true"></span></button></li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div>
+</nav>

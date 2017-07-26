@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<!-- saved from url=(0049)http://v4-alpha.getbootstrap.com/examples/navbar/ -->
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="http://v4-alpha.getbootstrap.com/favicon.ico">
+
+    <title>Viscacha - VK Audios</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="static/css/navbar.css" rel="stylesheet">
+    <link href="static/css/audio.css" rel="stylesheet" type="text/css">
+    <link href="static/css/offcanvas.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <link href="static/css/common.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.plyr.io/2.0.13/plyr.css">
+  </head>
+
+  <body>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/">Viscacha</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="/">Home</a></li>
+            <li><a href="/search">VK Search</a></li>
+            <li class="active"><a href="/audios">VK Audios</a></li>
+            <li><a href="/rates">Exchange Rates</a></li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            <li><button class="btn btn-link navbar-btn" style="text-decoration: none; color: #fff">USD/BYN: {{ currency_rate }}</button></li>
+            <li><button class="btn btn-link navbar-btn" style="text-decoration: none; color: #fff" id="weather" data-toggle="popover" data-trigger="hover" title="Weather Forecast" data-content="" data-placement="bottom"></button></li>
+            <li><button class="btn btn-link navbar-btn" style="text-decoration: none; color: #fff"><span class="glyphicon glyphicon-cog" aria-hidden="true"></span></button></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container" id="container">
+
+      <div class="modal fade" id="waitDialogModal1" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4>Loading...</h4>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel panel-default" id="panel">
+        <div class="panel-heading">Audios</div>
+          <div class="panel-body">
+                <!--ul>
+                    <li class="active">
+                        <button type="button" class="btn" data-source="audio">Audio</button>
+                    </li>
+                </ul-->
+
+            <div id="wrapper">
+              <audio preload="none"></audio>
+              <hr>
+              <div class="list-group" id="search_results"></div>
+            </div>
+          </div>
+      </div>
+
+    </div> <!-- /container -->
+
+    <script src="static/js/jquery.min.js"></script>
+    <script src="static/js/audiojs/audio.min.js"></script>
+    <script src="static/js/player.js"></script>
+    <script src="static/js/vk.js"></script>
+    <script src="static/js/common.js"></script>
+    <script src="static/js/common_view.js"></script>
+    
+    <script src="static/js/tether.min.js"></script>
+    <script src="static/bootstrap/js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="static/js/ie10-viewport-bug-workaround.js"></script>
+    <!-- Plyr core script -->
+        <script src="https://cdn.plyr.io/2.0.13/plyr.js"></script>
+
+        <!-- Docs script -->
+        <script src="static/js/main.js"></script>
+
+    <script type="text/javascript">
+      setView({{ forecast | tojson | safe }});
+    </script>
+
+    <script type="text/javascript">
+
+      var waitDialog = $('#waitDialogModal1');
+
+      loadAudios();
+
+      function loadAudios() {
+        showWaitDialog();
+
+        $.post('/audios', function(data) {
+          if (data.has_error) {
+            closeWaitDialog();
+            var errorDiv = $("<div class=\"alert alert-danger\" role=\"alert\"></div>");
+            errorDiv.text('Error loading data: ' + data.error_description);
+            $('#container').append(errorDiv);
+            
+          }
+          else {
+            var trackInfoBar = "<span class=\"pull-right\"><button class=\"btn btn-xs btn-link\">{duration}</button></span>";
+
+            $.each(data.result, function (index, item) {
+              $('<a/>')
+                .prop('href', '#')
+                  .attr('class', "list-group-item")
+                  .attr('track-id', item.track_id)
+                  .html(item.title + trackInfoBar.replace('{duration}', toTime(item.duration)))
+                .appendTo('#search_results')
+            })
+
+            var firstElem = $('#search_results a').first();
+            var firstTrackId = firstElem.attr('track-id');
+
+            $.getJSON("/audio_info/" + firstTrackId, function(data) {
+              url = decodeLink(data.result.link);
+              firstElem.attr('data-src', url);
+
+              initPlayer();
+              closeWaitDialog();
+            });
+          }
+        }, 'json');
+      }
+
+      function showWaitDialog() {
+        waitDialog.modal('show');
+      }
+
+      function closeWaitDialog() {
+        waitDialog.modal('hide');
+      }
+
+    </script>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    
+  
+  </body>
+</html>
